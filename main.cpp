@@ -331,28 +331,19 @@ double fitness(int music[LINES][MAXNOTE])
 	int nextpitch = (i + 1) & 31;
         if (music[0][i] == 12 || music[0][nextpitch] == 12)
 	{
-            grade2 -= 2;
+            grade2--;
 	    continue;
 	}
         int diff = (music[1][nextpitch] * 12 + music[0][nextpitch]) - (music[1][i] * 12 + music[0][i]);
-        if (!diff)
-            each_diff[i] = 0;
-        else if (diff >= 1 && diff <= 4)
-            each_diff[i] = 1;
-        else if (diff >= 5 && diff <= 9)
-            each_diff[i] = 2;
-        else if (diff >= 10 && diff <= 12)
-            each_diff[i] = 3;
-        else if (diff >= 13)
-            each_diff[i] = 4;
-        else if (diff <= -1 && diff >= -4)
-            each_diff[i] = -1;
-        else if (diff <= -5 && diff >= -9)
-            each_diff[i] = -2;
-        else if (diff <= -10 && diff >= -12)
-            each_diff[i] = -3;
-        else if (diff <= -13)
-            each_diff[i] = -4;
+        if (!diff) each_diff[i] = 0;
+        else if (diff >= 1 && diff <= 4) each_diff[i] = 1;
+        else if (diff >= 5 && diff <= 9) each_diff[i] = 2;
+        else if (diff >= 10 && diff <= 12) each_diff[i] = 3;
+        else if (diff >= 13) each_diff[i] = 4;
+        else if (diff <= -1 && diff >= -4) each_diff[i] = -1;
+        else if (diff <= -5 && diff >= -9) each_diff[i] = -2;
+        else if (diff <= -10 && diff >= -12) each_diff[i] = -3;
+        else if (diff <= -13) each_diff[i] = -4;
         switch (abs(diff))
         {
         case 12:
@@ -360,10 +351,8 @@ double fitness(int music[LINES][MAXNOTE])
                 grade2--;
             break;
         case 0:
-            if (++same_len > 4)
-                grade2--;
-            if (same_len > 8)
-                grade2--;
+            if (++same_len > 4) grade2--;
+            if (same_len > 8) grade2--;
             break;
         case 1:
             grade2 -= 8;
@@ -376,21 +365,22 @@ double fitness(int music[LINES][MAXNOTE])
             grade2 -= 4;
         case 10:
             grade2 -= 2;
-            if (seventh)
-                grade2 -= 2;
+            if (seventh) grade2 -= 2;
             seventh = true;
         case 5:
         case 7:
         case 8:
         case 9:
-            if (++cnt_jump > 5)
-                grade2--;
+            if (++cnt_jump > 5) grade2--;
             break;
         case 6:
-            if (++cnt_jump > 5)
-                grade2--;
+	    grade2 -= 10;
+
         default:
             grade2 -= 10;
+	    if (seventh) grade2 -= 2;
+            seventh = true;
+	    if (++cnt_jump > 5) grade2--;
             break;
         }
         if (!(i & 7))
@@ -409,13 +399,20 @@ double fitness(int music[LINES][MAXNOTE])
         grade4 += music[2][i] && music[2][i + 16];
 
     // 旋律结构相似
+    int same = 0, rev = 0
     for (int i = 0; i < 8; i++)
     {
-        grade4 += each_diff[i] == each_diff[i + 8];
-        grade4 += each_diff[i + 16] == each_diff[i + 24];
+        same += each_diff[i] == each_diff[i + 8];
+        same += each_diff[i + 16] == each_diff[i + 24];
+	rev += each_diff[i] == -each_diff[i + 8];
+        rev += each_diff[i + 16] == -each_diff[i + 24];
     }
     for (int i = 0; i < 16; i++)
-        grade4 += each_diff[i] == each_diff[i + 16];
+    {
+        same += each_diff[i] == each_diff[i + 16];
+	rev += each_diff[i] == -each_diff[i + 16];
+    }
+    grade4 += max(same, rev);
 
     // 和弦推测
     int beat[8];
