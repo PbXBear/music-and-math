@@ -165,7 +165,7 @@ namespace Amin
 	}
 };
 
-#define MIN_BEST -(2 << 20)
+#define MIN_BEST -(1 << 24)
 int nowbest = MIN_BEST;                   // 记录当前最高分，用于搜索时剪枝
 vector<chord_t> chordsmaj, chordsmin, temp; // 大调和小调时分别的功能组序列，作为额外信息打印
 bool choose = true;                         // 最终选择大调还是小调，true为大调
@@ -180,7 +180,7 @@ void cal_chord_maj(const int beat[8], int idx, const chord_t* prev, int nowscore
 			//nowscore = nowbest, chordsmaj = temp;
 		return;
 	}
-	if (nowbest - nowscore > 16 - 2 * idx) // 剪枝
+	if (nowbest - nowscore > 16 - (idx << 1)) // 剪枝
 		return;
 	vector<chord_t> pred;
 	int maxscore = MIN_BEST;
@@ -203,7 +203,7 @@ void cal_chord_maj(const int beat[8], int idx, const chord_t* prev, int nowscore
 			{
 			case Cmaj::C:
 				if (ch == Cmaj::F)
-					score +=2;
+					score += 2;
 				else 
 					score++;
 				break;
@@ -215,7 +215,7 @@ void cal_chord_maj(const int beat[8], int idx, const chord_t* prev, int nowscore
 				break;
 			case Cmaj::G:
 				if (ch == Cmaj::C)
-					score+=2;
+					score += 2;
 				else if (ch == Cmaj::F)
 					score -= 2;
 				break;
@@ -234,7 +234,7 @@ void cal_chord_min(const int beat[8], int idx, const chord_t* prev, int nowscore
 			//nowscore = nowbest, chordsmin = temp;
 		return;
 	}
-	if (nowbest - nowscore > 16 - 2 * idx) // 剪枝
+	if (nowbest - nowscore > 16 - (idx << 1)) // 剪枝
 		return;
 	vector<chord_t> pred;
 	int maxscore = MIN_BEST;
