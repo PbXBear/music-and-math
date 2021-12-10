@@ -202,22 +202,22 @@ void cal_chord_maj(const int beat[8], int idx, const chord_t* prev, int nowscore
 			switch (*prev) // 根据上一个和弦确定和弦进行的给分
 			{
 			case Cmaj::C:
-				if (ch == Cmaj::C)
+				if (ch == Cmaj::F)
+					score +=2;
+				else 
 					score++;
-				else if (ch == Cmaj::G)
-					score += 2;
 				break;
 			case Cmaj::F:
 				if (ch == Cmaj::G)
-					score -= 2;
-				else
+					score += 2;
+				else if (ch == Cmaj::F)
 					score++;
 				break;
 			case Cmaj::G:
 				if (ch == Cmaj::C)
-					score++;
+					score+=2;
 				else if (ch == Cmaj::F)
-					score += 2;
+					score -= 2;
 				break;
 			}
 		}
@@ -258,18 +258,18 @@ void cal_chord_min(const int beat[8], int idx, const chord_t* prev, int nowscore
 			case Amin::Am:
 				if (ch == Amin::E)
 					score += 2;
-				else if (ch == Amin::Am)
+				else if (ch == Amin::Dm)
 					score++;
 				break;
 			case Amin::Dm:
-				if (ch != Amin::E)
+				if (ch == Amin::Dm)
 					score++;
-				else
-					score--;
+				else if (ch == Amin::G)
+					score+=2;
 				break;
 			case Amin::E:
 				if (ch == Amin::Dm)
-					score += 2;
+					score--;
 				else
 					score++;
 				break;
