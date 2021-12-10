@@ -375,7 +375,8 @@ double fitness(int music[LINES][MAXNOTE])
             break;
         case 6:
 	    grade2 -= 10;
-
+	    if (++cnt_jump > 5) grade2--;
+            break;
         default:
             grade2 -= 10;
 	    if (seventh) grade2 -= 2;
