@@ -256,16 +256,16 @@ void cal_chord_min(const int beat[8], int idx, const chord_t* prev, int nowscore
 			switch (*prev) // 根据上一个和弦确定和弦进行的给分
 			{
 			case Amin::Am:
-				if (ch == Amin::E)
+				if (ch == Amin::Dm)
 					score += 2;
-				else if (ch == Amin::Dm)
+				else
 					score++;
 				break;
 			case Amin::Dm:
 				if (ch == Amin::Dm)
 					score++;
 				else if (ch == Amin::G)
-					score+=2;
+					score += 2;
 				break;
 			case Amin::E:
 				if (ch == Amin::Dm)
