@@ -358,8 +358,8 @@ double fitness(int music[LINES][MAXNOTE])
         case 0:
             if (++same_len > 4)
                 grade2--;
-            else if (same_len > 8)
-                grade2 -= 2;
+            if (same_len > 8)
+                grade2--;
             break;
         case 1:
             grade2 -= 8;
