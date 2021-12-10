@@ -104,6 +104,7 @@ namespace Cmaj
 			break;
 		case 5:
 			pred.emplace_back(F);
+			pred.emplace_back(G);
 			break;
 		case 6:
 			pred.emplace_back(F);
