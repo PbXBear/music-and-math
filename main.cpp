@@ -285,7 +285,7 @@ double fitness(int music[LINES][MAXNOTE])
     int grade1_maj = 160, grade1_min = 160;
     int grade2 = 80;
     int grade3_maj = 0, grade3_min = 0;
-    int grade4 = 0;
+    double grade4 = 0;
 
     // 音阶外音
     for (int i = 0; i < MAXNOTE; ++i)
@@ -394,11 +394,11 @@ double fitness(int music[LINES][MAXNOTE])
     // 节奏结构相似
     for (int i = 0; i < 8; i++)
     {
-        grade4 += music[2][i] && music[2][i + 8];
-        grade4 += music[2][i + 16] && music[2][i + 24];
+        grade4 += (music[2][i]>0) == (music[2][i + 8]);
+        grade4 += (music[2][i + 16]) == (music[2][i + 24]);
     }
     for (int i = 0; i < 16; i++)
-        grade4 += music[2][i] && music[2][i + 16];
+        grade4 += (music[2][i]) == (music[2][i + 16])
 
     // 旋律结构相似
     int same = 0, rev = 0
@@ -414,7 +414,7 @@ double fitness(int music[LINES][MAXNOTE])
         same += each_diff[i] == each_diff[i + 16];
 	rev += each_diff[i] == -each_diff[i + 16];
     }
-    grade4 += max(same, rev);
+    grade4 = 0.5 * grade4 + max(same, rev);
 
     // 和弦推测
     int beat[8];
