@@ -328,9 +328,13 @@ double fitness(int music[LINES][MAXNOTE])
     int each_diff[MAXNOTE] = {0};
     for (int i = 0; i < MAXNOTE; ++i)
     {
-        if (music[0][i] == 12 || music[0][(i + 1) & 31] == 12)
-            continue;
-        int diff = (music[1][(i + 1) & 31] * 12 + music[0][(i + 1) & 31]) - (music[1][i] * 12 + music[0][i]);
+	int nextpitch = (i + 1) & 31;
+        if (music[0][i] == 12 || music[0][nextpitch] == 12)
+	{
+            grade2 -= 2;
+	    continue;
+	}
+        int diff = (music[1][nextpitch] * 12 + music[0][nextpitch]) - (music[1][i] * 12 + music[0][i]);
         if (!diff)
             each_diff[i] = 0;
         else if (diff >= 1 && diff <= 4)
