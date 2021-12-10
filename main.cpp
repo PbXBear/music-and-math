@@ -279,124 +279,152 @@ void cal_chord_min(const int beat[8], int idx, const chord_t* prev, int nowscore
 	}
 }
 
-int fitness(int music[LINES][MAXNOTE])
+double fitness(int music[LINES][MAXNOTE])
 {
-	int grade1_maj = 160, grade1_min = 160;
-	int grade2 = 80;
-	int grade3_maj = 0, grade3_min = 0;
-	int grade4 = 0;
+    int grade1_maj = 160, grade1_min = 160;
+    int grade2 = 80;
+    int grade3_maj = 0, grade3_min = 0;
+    int grade4 = 0;
 
-	// 音阶外音
-	for (int i = 0; i < MAXNOTE; ++i)
-		switch (music[0][i])
-		{
-		case 0:
-		case 2:
-		case 4:
-		case 5:
-		case 9:
-			break;
-		case 6:
-			grade1_maj -= 5;
-			grade1_min -= 4;
-			break;
-		case 7:
-			grade1_min -= 2;
-		case 8:
-			grade1_maj -= 7;
-			grade1_min--;
-			break;
-		case 10:
-			grade1_maj -= 7;
-			grade1_min -= 10;
-		case 11:
-			grade1_maj--;
-			break;
-		case 12:
-			grade1_maj -= 2;
-			grade1_min -= 2;
-			break;
-		default:
-			grade1_maj -= 10;
-			grade1_min -= 10;
-			break;
-		}
+    // 音阶外音
+    for (int i = 0; i < MAXNOTE; ++i)
+        switch (music[0][i])
+        {
+        case 0:
+        case 2:
+        case 4:
+        case 5:
+        case 9:
+            break;
+        case 6:
+            grade1_maj -= 5;
+            grade1_min -= 4;
+            break;
+        case 7:
+            grade1_min -= 2;
+        case 8:
+            grade1_maj -= 7;
+            grade1_min--;
+            break;
+        case 10:
+            grade1_maj -= 7;
+            grade1_min -= 10;
+        case 11:
+            grade1_maj--;
+            break;
+        case 12:
+            grade1_maj -= 2;
+            grade1_min -= 2;
+            break;
+        default:
+            grade1_maj -= 10;
+            grade1_min -= 10;
+            break;
+        }
 
-	// 异常音程
-	bool seventh = false;
-	int cnt_jump = 0, same_len = 0;
-	for (int i = 0; i < MAXNOTE; ++i)
-	{
-		if (music[0][i] == 12 || music[0][(i + 1) & 31] == 12)
-			continue;
-		int diff = abs((music[1][(i + 1) & 31] * 12 + music[0][(i + 1) & 31]) - (music[1][i] * 12 + music[0][i]));
-		switch (diff)
-		{
-		case 12:
-			if (++cnt_jump > 5)
-				grade2--;
-		case 0:
-			if (++same_len > 4)
-				grade2--;
-			break;
-		case 1:
-			grade2 -= 7;
-			break;
-		case 2:
-			grade2 -= 2;
-			break;
-		case 3:
-		case 4:
-			grade2 -= 2;
-			break;
-		case 11:
-			grade2 -= 5;
-		case 10:
-			grade2 -= 2;
-			if (seventh)
-				grade2--;
-			seventh = true;
-		case 5:
-		case 7:
-		case 8:
-		case 9:
-			if (++cnt_jump > 5)
-				grade2--;
-			break;
-		case 6:
-			if (++cnt_jump > 5)
-				grade2--;
-		default:
-			grade2 -= 10;
-			break;
-		}
-		if (!(i & 7))
-			seventh = 0, cnt_jump = 0;
-		if (diff % 12)
-			same_len = 0;
-	}
+    // 异常音程
+    bool seventh = false;
+    int cnt_jump = 0, same_len = 0;
+    int each_diff[MAXNOTE] = {0};
+    for (int i = 0; i < MAXNOTE; ++i)
+    {
+        if (music[0][i] == 12 || music[0][(i + 1) & 31] == 12)
+            continue;
+        int diff = (music[1][(i + 1) & 31] * 12 + music[0][(i + 1) & 31]) - (music[1][i] * 12 + music[0][i]);
+        if (!diff)
+            each_diff[i] = 0;
+        else if (diff >= 1 && diff <= 4)
+            each_diff[i] = 1;
+        else if (diff >= 5 && diff <= 9)
+            each_diff[i] = 2;
+        else if (diff >= 10 && diff <= 12)
+            each_diff[i] = 3;
+        else if (diff >= 13)
+            each_diff[i] = 4;
+        else if (diff <= -1 && diff >= -4)
+            each_diff[i] = -1;
+        else if (diff <= -5 && diff >= -9)
+            each_diff[i] = -2;
+        else if (diff <= -10 && diff >= -12)
+            each_diff[i] = -3;
+        else if (diff <= -13)
+            each_diff[i] = -4;
+        switch (abs(diff))
+        {
+        case 12:
+            if (++cnt_jump > 5)
+                grade2--;
+            break;
+        case 0:
+            if (++same_len > 4)
+                grade2--;
+            else if (same_len > 8)
+                grade2 -= 2;
+            break;
+        case 1:
+            grade2 -= 8;
+            break;
+        case 2:
+        case 3:
+        case 4:
+            break;
+        case 11:
+            grade2 -= 4;
+        case 10:
+            grade2 -= 2;
+            if (seventh)
+                grade2 -= 2;
+            seventh = true;
+        case 5:
+        case 7:
+        case 8:
+        case 9:
+            if (++cnt_jump > 5)
+                grade2--;
+            break;
+        case 6:
+            if (++cnt_jump > 5)
+                grade2--;
+        default:
+            grade2 -= 10;
+            break;
+        }
+        if (!(i & 7))
+            seventh = 0, cnt_jump = 0;
+        if (diff % 12)
+            same_len = 0;
+    }
 
-	// 节奏相似
-	for (int i = 0; i < 8; i++)
-	{
-		grade4 += music[2][i] & music[2][i + 8];
-		grade4 += music[2][i + 16] & music[2][i + 24];
-	}
-	for (int i = 0; i < 16; i++)
-		grade4 += music[2][i] & music[2][i + 16];
+    // 节奏结构相似
+    for (int i = 0; i < 8; i++)
+    {
+        grade4 += music[2][i] && music[2][i + 8];
+        grade4 += music[2][i + 16] && music[2][i + 24];
+    }
+    for (int i = 0; i < 16; i++)
+        grade4 += music[2][i] && music[2][i + 16];
 
-	// 和弦推测
-	int beat[8];
-	for (int i = 0; i < MAXNOTE; i += 4)
-		beat[i >> 2] = music[0][i];
-	nowbest = MIN_BEST;
-	cal_chord_maj(beat, 0, nullptr, 0);
-	grade3_maj = nowbest << 2;
-	nowbest = MIN_BEST;
-	cal_chord_min(beat, 0, nullptr, 0);
-	grade3_min = nowbest << 2;
+    // 旋律结构相似
+    for (int i = 0; i < 8; i++)
+    {
+        grade4 += each_diff[i] == each_diff[i + 8];
+        grade4 += each_diff[i + 16] == each_diff[i + 24];
+    }
+    for (int i = 0; i < 16; i++)
+        grade4 += each_diff[i] == each_diff[i + 16];
 
-	return max(grade1_maj + grade3_maj, grade1_min + grade3_min) + grade2 + grade4;
+    // 和弦推测
+    int beat[8];
+    for (int i = 0; i < MAXNOTE; i += 4)
+        beat[i >> 2] = music[0][i];
+    nowbest = MIN_BEST;
+    cal_chord_maj(beat, 0, nullptr, 0);
+    grade3_maj = nowbest << 2;
+    nowbest = MIN_BEST;
+    cal_chord_min(beat, 0, nullptr, 0);
+    grade3_min = nowbest << 2;
+
+    return max(grade1_maj + grade3_maj, grade1_min + grade3_min) + grade2 + grade4;
 }
 
 /* 计算被选中遗传的概率，softmax */
